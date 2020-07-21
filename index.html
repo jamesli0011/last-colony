@@ -28,10 +28,26 @@
 
 		<script src="js/multiplayer.js" type="text/javascript" charset="utf-8"></script>
 
+		<script src="js/client.js" type="text/javascript" charset="utf-8"></script>
+
 		<link rel="stylesheet" href="styles.css" type="text/css" media="screen" charset="utf-8">
 	</head>
 	<body>
 	    <div id="gamecontainer">
+	    	<div id="login" class="gamelayer">
+	    		<span>
+	    			<label>Account Name</label>
+		    		<input type="text" id="loginname"/>
+		    		<input type="button" onclick="netclient.connect('ws://ezmega.cn:28000');" value="Login">
+		    	</span>
+	    	</div>
+	    	<div id="createchar" class="gamelayer">
+	    		<span>
+		    		<label>Character Name</label>
+		    		<input type="text" id="charname">
+		    		<input type="button" onclick="netclient.create_player();" value="Create"/>
+		    	</span>
+	    	</div>
 	        <div id="gamestartscreen" class="gamelayer">
 	            <span id="singleplayer" onclick = "singleplayer.start();">Campaign</span>
 	            <span id="multiplayer" onclick = "multiplayer.start();">Multiplayer</span>

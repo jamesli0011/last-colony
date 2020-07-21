@@ -12,6 +12,43 @@
 	display:none;
 }
 
+/* Login */
+#login {
+    padding-top:320px;
+    text-align:left;
+    padding-left:50px;
+    width:590px;
+    height:160px;
+}
+
+#login span {
+    margin:20px;
+    font-family: ‘Courier New’, Courier, monospace;
+    font-size: 20px;
+    cursor:pointer;
+    color:white    ;
+    display:block;
+    text-shadow: -2px 0 purple, 0 2px purple, 2px 0 purple, 0 -2px purple;
+}
+
+#createchar {
+    padding-top:320px;
+    text-align:left;
+    padding-left:50px;
+    width:590px;
+    height:160px;
+}
+
+#createchar span {
+    margin:20px;
+    font-family: ‘Courier New’, Courier, monospace;
+    font-size: 20px;
+    cursor:pointer;
+    color:white    ;
+    display:block;
+    text-shadow: -2px 0 purple, 0 2px purple, 2px 0 purple, 0 -2px purple;
+}
+
 /* Game Starting Menu Screen */
 #gamestartscreen {
     padding-top:320px;

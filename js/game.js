@@ -11,7 +11,8 @@ var game = {
 		sounds.init();
 
 		$('.gamelayer').hide();
-		$('#gamestartscreen').show();
+		// $('#gamestartscreen').show();
+		$('#login').show();
 
 		game.backgroundCanvas = document.getElementById('gamebackgroundcanvas');
 		game.backgroundContext = game.backgroundCanvas.getContext('2d');

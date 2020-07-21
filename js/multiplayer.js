@@ -74,7 +74,8 @@ var multiplayer = {
 	join:function(){
 	    var selectedRoom = document.getElementById('multiplayergameslist').value;
 	    if(selectedRoom){            
-	        multiplayer.sendWebSocketMessage({type:"join_room",roomId:selectedRoom});    
+	        // multiplayer.sendWebSocketMessage({type:"join_room",roomId:selectedRoom});    
+          netclient.send_join_room(selectedRoom);
 	        document.getElementById('multiplayergameslist').disabled = true;
 	        document.getElementById('multiplayerjoin').disabled = true;        
 	    } else {
@@ -84,7 +85,8 @@ var multiplayer = {
 	cancel:function(){
 		// Leave any existing game room
 		if(multiplayer.roomId){			
-			multiplayer.sendWebSocketMessage({type:"leave_room",roomId:multiplayer.roomId});
+			// multiplayer.sendWebSocketMessage({type:"leave_room",roomId:multiplayer.roomId});
+      netclient.send_leave_room();
 			document.getElementById('multiplayergameslist').disabled = false;
 			document.getElementById('multiplayerjoin').disabled = false;
 			delete multiplayer.roomId;
@@ -92,21 +94,26 @@ var multiplayer = {
 			return;
 		} else {
 			// Not in a room, so leave the multiplayer screen itself
-			multiplayer.closeAndExit();
+			// multiplayer.closeAndExit();
 		}
 	},
 	closeAndExit:function(){
+    document.getElementById('multiplayergameslist').disabled = false;
+    document.getElementById('multiplayerjoin').disabled = false;
+    $(".gamelayer").hide();
+    $("#multiplayerlobbyscreen").show();
+
 		// clear handlers and close connection
-		multiplayer.websocket.onopen = null;
-		multiplayer.websocket.onclose = null;
-		multiplayer.websocket.onerror = null;		
-		multiplayer.websocket.close();
+		// multiplayer.websocket.onopen = null;
+		// multiplayer.websocket.onclose = null;
+		// multiplayer.websocket.onerror = null;		
+		// multiplayer.websocket.close();
 	
-		document.getElementById('multiplayergameslist').disabled = false;
-		document.getElementById('multiplayerjoin').disabled = false;		
-		// Show the starting menu layer
-		$('.gamelayer').hide();
-	    $('#gamestartscreen').show();			
+		// document.getElementById('multiplayergameslist').disabled = false;
+		// document.getElementById('multiplayerjoin').disabled = false;		
+		// // Show the starting menu layer
+		// $('.gamelayer').hide();
+  //   $('#gamestartscreen').show();			
 	},
 	sendWebSocketMessage:function(messageObject){
 	    this.websocket.send(JSON.stringify(messageObject));
@@ -153,21 +160,46 @@ var multiplayer = {
 	        game.add(itemDetails);
 	    };        
 
+      // {
+      //   spawnLocations :{
+      //     {color:"", location:1},
+      //     {color:"", location:2},
+      //   },
+      // }
+
 	    // Add starting items for both teams at their respective spawn locations
 	    for (team in spawnLocations){
-	        var spawnIndex = spawnLocations[team];
-	        for (var i=0; i < level.teamStartingItems.length; i++) {
-	            var itemDetails = $.extend(true,{},level.teamStartingItems[i]);
-	            itemDetails.x += level.spawnLocations[spawnIndex].x+itemDetails.x;
-	            itemDetails.y += level.spawnLocations[spawnIndex].y+itemDetails.y;
-	            itemDetails.team = team;
-	            game.add(itemDetails);            
-	        };
+          var spawnIndex = spawnLocations[team];
+          if (spawnIndex.location == undefined){
+            spawnIndex.location = 0;
+          }
+          for (var i=0; i < level.teamStartingItems.length; i++) {
+              var itemDetails = $.extend(true,{},level.teamStartingItems[i]);
+              itemDetails.x += level.spawnLocations[spawnIndex.location].x+itemDetails.x;
+              itemDetails.y += level.spawnLocations[spawnIndex.location].y+itemDetails.y;
+              itemDetails.team = spawnIndex.color;
+              game.add(itemDetails);            
+          };
 
-	        if (team==game.team){                
-	            game.offsetX = level.spawnLocations[spawnIndex].startX*game.gridSize;
-	            game.offsetY = level.spawnLocations[spawnIndex].startY*game.gridSize;
-	        }
+          if (spawnIndex.color==game.team){                
+              game.offsetX = level.spawnLocations[spawnIndex.location].startX*game.gridSize;
+              game.offsetY = level.spawnLocations[spawnIndex.location].startY*game.gridSize;
+          }
+
+          // old codes
+	        // var spawnIndex = spawnLocations[team];
+	        // for (var i=0; i < level.teamStartingItems.length; i++) {
+	        //     var itemDetails = $.extend(true,{},level.teamStartingItems[i]);
+	        //     itemDetails.x += level.spawnLocations[spawnIndex].x+itemDetails.x;
+	        //     itemDetails.y += level.spawnLocations[spawnIndex].y+itemDetails.y;
+	        //     itemDetails.team = team;
+	        //     game.add(itemDetails);            
+	        // };
+
+	        // if (team==game.team){                
+	        //     game.offsetX = level.spawnLocations[spawnIndex].startX*game.gridSize;
+	        //     game.offsetY = level.spawnLocations[spawnIndex].startY*game.gridSize;
+	        // }
 	    }
 
 
@@ -190,23 +222,27 @@ var multiplayer = {
 
 	    // Enable the enter mission button once all assets are loaded
 	    if (loader.loaded){
-	        multiplayer.sendWebSocketMessage({type:"initialized_level"});
+	        // multiplayer.sendWebSocketMessage({type:"initialized_level"});
+          netclient.send_init_lev_ready();
 
 	    } else {
 	        loader.onload = function(){
-	            multiplayer.sendWebSocketMessage({type:"initialized_level"});
+	            // multiplayer.sendWebSocketMessage({type:"initialized_level"});
+              netclient.send_init_lev_ready();
 	        }
 	    }
 	},
 	startGame:function(){
 	    fog.initLevel();
 	    game.animationLoop();                                
-	    multiplayer.animationInterval = setInterval(multiplayer.tickLoop, game.animationTimeout);
+	    // multiplayer.animationInterval = setInterval(multiplayer.tickLoop, game.animationTimeout);
+      multiplayer.animationInterval = setInterval(multiplayer.tickLoop, 33);
 	    game.start();                
 	},
 	sendCommand:function(uids,details){
 	    multiplayer.sentCommandForTick = true;
-	    multiplayer.sendWebSocketMessage({type:"command",uids:uids, details:details,currentTick:multiplayer.currentTick});
+	    // multiplayer.sendWebSocketMessage({type:"command",uids:uids, details:details,currentTick:multiplayer.currentTick});
+      netclient.send_cmd_command(multiplayer.currentTick, uids, details);
 	},
 	tickLoop:function(){        
 	    // if the commands for that tick have been received
@@ -233,7 +269,8 @@ var multiplayer = {
 	},    
 	// Tell the server that the player has lost
 	loseGame:function(){
-	    multiplayer.sendWebSocketMessage({type:"lose_game"});
+	    // multiplayer.sendWebSocketMessage({type:"lose_game"});
+      netclient.send_cmd_lose_game();
 	},
 	endGame:function(reason){
 	    game.running = false
@@ -255,7 +292,9 @@ $(window).keydown(function(e){
         if (isVisible){
             // if chat box is visible, pressing enter sends the message and hides the chat box
             if ($('#chatmessage').val()!= ''){
-                multiplayer.sendWebSocketMessage({type:"chat",message:$('#chatmessage').val()});
+                // multiplayer.sendWebSocketMessage({type:"chat",message:$('#chatmessage').val()});
+                var chatmsg = $('#chatmessage').val();
+                netclient.send_cmd_chat(chatmsg);
                 $('#chatmessage').val('');
             }
             $('#chatmessage').hide();
